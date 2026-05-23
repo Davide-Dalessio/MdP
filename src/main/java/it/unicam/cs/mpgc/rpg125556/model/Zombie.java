@@ -5,7 +5,7 @@ public class Zombie extends Entity implements NonPlayable{
     private final String loot;
 
     public Zombie(int experienceReward, String loot ) {
-        super("Zombie", 20,10,10,10);
+        super("Zombie", 200,10,10,10);
         this.experienceReward = 50;
         this.loot = "Flesh";
     }
