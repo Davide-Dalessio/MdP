@@ -1,23 +1,16 @@
 package it.unicam.cs.mpgc.rpg125556.model;
 
-public class Zombie extends Entity implements NonPlayable{
-    private final int experienceReward;
-    private final String loot;
+public class Zombie extends Enemy {
 
-    public Zombie(int experienceReward, String loot ) {
-        super("Zombie", 200,10,10,10);
-        this.experienceReward = 50;
-        this.loot = "Flesh";
-    }
-
-
-    @Override
-    public int getExperienceReward() {
-        return experienceReward;
+    public Zombie() {
+        super("Zombie", 200, 30, 10, 10, 50);
     }
 
     @Override
-    public String getLoot() {
-        return loot;
+    protected LootTable buildLootTable() {
+        LootTable table = new LootTable();
+        table.addEntry(new Item("Flesh", ItemType.POTION, 20), 80);
+        table.addEntry(new Item("Health Potion", ItemType.POTION, 50), 30);
+        return table;
     }
 }

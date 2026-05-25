@@ -5,9 +5,10 @@ import java.util.List;
 
 public class BattleManager {
     private final Warrior player;
-    private final Zombie enemy;
+    private final Enemy enemy;
     private final List<String> battleLog;
-    public BattleManager(Warrior player, Zombie enemy) {
+
+    public BattleManager(Warrior player, Enemy enemy) {
         this.player = player;
         this.enemy = enemy;
         this.battleLog = new ArrayList<>();
@@ -31,6 +32,15 @@ public class BattleManager {
             battleLog.add(enemy.getName() + " è stato sconfitto.");
             player.gainExperience(enemy.getExperienceReward());
             battleLog.add("+" + enemy.getExperienceReward() + " XP guadagnati.");
+            List<Item> drops = enemy.getLootTable().roll();
+            if (drops.isEmpty()) {
+                battleLog.add("Nessun loot trovato.");
+            } else {
+                drops.forEach(item -> {
+                    player.getInventory().addItem(item);
+                    battleLog.add("Trovato: " + item.getName() + " aggiunto all'inventario.");
+                });
+            }
         }
     }
 
@@ -51,6 +61,19 @@ public class BattleManager {
             battleLog.add(player.getName() + " ha provato a fuggire ma ha fallito.");
         }
         return success;
+    }
+
+    public void usePotionInBattle() {
+        player.usePotion().ifPresentOrElse(
+                p -> battleLog.add(player.getName() + " usa " + p.getName() + " e recupera " + p.getValue() + " HP."),
+                () -> battleLog.add("Nessuna pozione nell'inventario!")
+        );
+    }
+
+    public String getStatus() {
+        return player.getName() + " HP: " + player.getHealth() + "/" + player.getMaxHealth() +
+               "   |   " +
+               enemy.getName() + " HP: " + enemy.getHealth() + "/" + enemy.getMaxHealth();
     }
 
     public String getLog() {
