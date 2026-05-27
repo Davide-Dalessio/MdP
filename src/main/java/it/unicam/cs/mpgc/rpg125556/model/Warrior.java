@@ -45,12 +45,12 @@ public class Warrior extends Entity implements Playable {
         return inventory;
     }
 
-    public Optional<Item> usePotion() {
-        Optional<Item> potion = inventory.getItemsByType(ItemType.POTION)
+    public Optional<Potion> usePotion() {
+        Optional<Potion> potion = inventory.getItemsByClass(Potion.class)
                 .stream()
                 .findFirst();
         potion.ifPresent(p -> {
-            this.health = Math.min(this.health + p.getValue(), this.maxHealth);
+            p.use(this);
             inventory.removeItem(p);
         });
         return potion;

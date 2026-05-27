@@ -25,7 +25,6 @@ public class BattleManager {
         return damage;
     }
 
-
     public void playerAttack() {
         performAttack(player, enemy);
         if (enemy.isDead()) {
@@ -65,7 +64,15 @@ public class BattleManager {
 
     public void usePotionInBattle() {
         player.usePotion().ifPresentOrElse(
-                p -> battleLog.add(player.getName() + " usa " + p.getName() + " e recupera " + p.getValue() + " HP."),
+                p -> {
+                    String logMessage = player.getName() + " usa " + p.getName();
+                    if (p instanceof HealthPotion hp) {
+                        logMessage += " e recupera " + hp.getHealAmount() + " HP.";
+                    } else {
+                        logMessage += ".";
+                    }
+                    battleLog.add(logMessage);
+                },
                 () -> battleLog.add("Nessuna pozione nell'inventario!")
         );
     }
@@ -77,12 +84,6 @@ public class BattleManager {
     }
 
     public String getLog() {
-        return battleLog.stream()
-                .collect(java.util.stream.Collectors.joining("\n"));
+        return String.join("\n", battleLog);
     }
-
-
-
-
-
 }

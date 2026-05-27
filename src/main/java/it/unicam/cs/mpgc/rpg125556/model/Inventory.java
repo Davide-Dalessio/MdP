@@ -21,16 +21,16 @@ public class Inventory {
         return items.remove(item);
     }
 
-    public List<Item> getItemsByType(ItemType type) {
+    public <T extends Item> List<T> getItemsByClass(Class<T> clazz) {
         return items.stream()
-                .filter(item -> item.getType() == type)
+                .filter(clazz::isInstance)
+                .map(clazz::cast)
                 .collect(Collectors.toList());
     }
 
-    public Optional<Item> getBestWeapon() {
-        return items.stream()
-                .filter(item -> item.getType() == ItemType.WEAPON)
-                .max(Comparator.comparingInt(Item::getValue));
+    public Optional<Weapon> getBestWeapon() {
+        return getItemsByClass(Weapon.class).stream()
+                .max(Comparator.comparingInt(Weapon::getAttackBonus));
     }
 
     public List<Item> getAll() {
