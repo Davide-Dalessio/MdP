@@ -14,6 +14,23 @@ public class BattleManager {
         this.battleLog = new ArrayList<>();
     }
 
+    public Warrior getPlayer() {
+        return player;
+    }
+
+    public Enemy getEnemy() {
+        return enemy;
+    }
+
+    public List<String> getBattleLogList() {
+        return battleLog;
+    }
+
+    public void setBattleLog(List<String> logs) {
+        this.battleLog.clear();
+        this.battleLog.addAll(logs);
+    }
+
     public boolean isBattleOver() {
         return player.isDead() || enemy.isDead();
     }

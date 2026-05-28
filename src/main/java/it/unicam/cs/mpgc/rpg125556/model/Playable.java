@@ -5,4 +5,7 @@ public interface Playable {
     void levelUp();
     int getExperience();
     int getLevel();
+    int getHealth();
+    void setHealth(int health);
+    int getMaxHealth();
 }

@@ -1,5 +1,7 @@
 package it.unicam.cs.mpgc.rpg125556.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public abstract class Entity {
     protected String name;
     protected int health;
@@ -7,6 +9,11 @@ public abstract class Entity {
     protected int attack;
     protected int defense;
     protected int speed;
+
+    protected Entity() {
+        this.name = "";
+    }
+
     public Entity(String name, int maxHealth, int attack, int defense, int speed) {
         this.name = name;
         this.maxHealth = maxHealth;
@@ -23,6 +30,7 @@ public abstract class Entity {
         }
     }
 
+    @JsonIgnore
     public boolean isDead() {
         return this.health <= 0;
     }

@@ -6,7 +6,12 @@ public class Warrior extends Entity implements Playable {
     private int experience;
     private int level;
     private int maxExperience;
-    private final Inventory inventory;
+    private Inventory inventory;
+
+    private Warrior() {
+        super();
+        this.inventory = new Inventory();
+    }
 
     public Warrior(String name) {
         super(name, 100, 50, 30, 20);
@@ -43,6 +48,10 @@ public class Warrior extends Entity implements Playable {
 
     public Inventory getInventory() {
         return inventory;
+    }
+
+    public void setInventory(Inventory inventory) {
+        this.inventory = inventory;
     }
 
     public Optional<Potion> usePotion() {

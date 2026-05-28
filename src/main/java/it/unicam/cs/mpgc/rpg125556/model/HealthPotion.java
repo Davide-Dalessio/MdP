@@ -1,7 +1,11 @@
 package it.unicam.cs.mpgc.rpg125556.model;
 
 public class HealthPotion extends Potion {
-    private final int healAmount;
+    private int healAmount;
+
+    private HealthPotion() {
+        super();
+    }
 
     public HealthPotion(String name, int healAmount) {
         super(name);
@@ -13,7 +17,7 @@ public class HealthPotion extends Potion {
     }
 
     @Override
-    public void use(Warrior target) {
+    public void use(Playable target) {
         target.setHealth(Math.min(target.getHealth() + healAmount, target.getMaxHealth()));
     }
 }
