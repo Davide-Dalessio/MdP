@@ -8,4 +8,5 @@ public interface Playable {
     int getHealth();
     void setHealth(int health);
     int getMaxHealth();
+    int getMaxExperience();
 }

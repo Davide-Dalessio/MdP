@@ -32,6 +32,11 @@ public class Warrior extends Entity implements Playable {
     }
 
     @Override
+    public int getMaxExperience() {
+        return maxExperience;
+    }
+
+    @Override
     public void gainExperience(int amount) {
         experience += amount;
         while (experience >= maxExperience) {
