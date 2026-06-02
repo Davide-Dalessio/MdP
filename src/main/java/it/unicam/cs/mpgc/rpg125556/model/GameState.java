@@ -3,23 +3,23 @@ package it.unicam.cs.mpgc.rpg125556.model;
 import java.util.List;
 
 public class GameState {
-    private Warrior player;
+    private Hero player;
     private Enemy enemy;
     private List<String> battleLog;
 
     public GameState() {}
 
-    public GameState(Warrior player, Enemy enemy, List<String> battleLog) {
+    public GameState(Hero player, Enemy enemy, List<String> battleLog) {
         this.player = player;
         this.enemy = enemy;
         this.battleLog = battleLog;
     }
 
-    public Warrior getPlayer() {
+    public Hero getPlayer() {
         return player;
     }
 
-    public void setPlayer(Warrior player) {
+    public void setPlayer(Hero player) {
         this.player = player;
     }
 

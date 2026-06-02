@@ -4,17 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BattleManager {
-    private final Warrior player;
+    private final Hero player;
     private final Enemy enemy;
     private final List<String> battleLog;
 
-    public BattleManager(Warrior player, Enemy enemy) {
+    public BattleManager(Hero player, Enemy enemy) {
         this.player = player;
         this.enemy = enemy;
         this.battleLog = new ArrayList<>();
     }
 
-    public Warrior getPlayer() {
+    public Hero getPlayer() {
         return player;
     }
 

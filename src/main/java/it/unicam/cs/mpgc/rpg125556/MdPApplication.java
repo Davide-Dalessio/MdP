@@ -2,6 +2,8 @@ package it.unicam.cs.mpgc.rpg125556;
 
 import it.unicam.cs.mpgc.rpg125556.model.BattleManager;
 import it.unicam.cs.mpgc.rpg125556.model.Warrior;
+import it.unicam.cs.mpgc.rpg125556.model.Hero;
+import it.unicam.cs.mpgc.rpg125556.model.Mage;
 import it.unicam.cs.mpgc.rpg125556.model.Zombie;
 import it.unicam.cs.mpgc.rpg125556.model.GameSaveManager;
 import it.unicam.cs.mpgc.rpg125556.model.GameState;
@@ -9,6 +11,7 @@ import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextInputDialog;
@@ -20,6 +23,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.util.Optional;
 
 public class MdPApplication extends Application {
 
@@ -35,6 +39,18 @@ public class MdPApplication extends Application {
     private void updateStatus() {
         playerStatusLabel.setText(battle.getPlayer().getName() + " (LV " + battle.getPlayer().getLevel() + ") HP: " + battle.getPlayer().getHealth() + "/" + battle.getPlayer().getMaxHealth() + " | EXP: " + battle.getPlayer().getExperience() + "/" + battle.getPlayer().getMaxExperience());
         enemyStatusLabel.setText(battle.getEnemy().getName() + " HP: " + battle.getEnemy().getHealth() + "/" + battle.getEnemy().getMaxHealth());
+    }
+
+    private FileChooser createFileChooser(String title) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle(title);
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("File JSON (*.json)", "*.json"));
+        File saveDir = new File("saves");
+        if (!saveDir.exists()) {
+            saveDir.mkdirs();
+        }
+        fileChooser.setInitialDirectory(saveDir);
+        return fileChooser;
     }
 
     private void checkBattleStatus(Button attackBtn, Button inventoryBtn, Button fleeBtn, Button newEncounterBtn) {
@@ -194,9 +210,9 @@ public class MdPApplication extends Application {
     @Override
     public void start(Stage primaryStage) {
 
-        Warrior warrior = new Warrior("Warrior");
-        Zombie zombie = new Zombie();
-        battle = new BattleManager(warrior, zombie);
+        Warrior dummyWarrior = new Warrior("Guerriero");
+        Zombie dummyZombie = new Zombie();
+        battle = new BattleManager(dummyWarrior, dummyZombie);
 
         terminalArea = new TextArea();
         terminalArea.setEditable(false);
@@ -205,7 +221,7 @@ public class MdPApplication extends Application {
                 "-fx-text-fill: #000000ff; " +
                 "-fx-font-family: 'Courier New'; " +
                 "-fx-font-size: 14px;");
-        terminalArea.setText("=== COMBATTIMENTO ===\n" + warrior.getName() + " vs " + zombie.getName() + "\n");
+        terminalArea.setText("=== COMBATTIMENTO ===\n" + dummyWarrior.getName() + " vs " + dummyZombie.getName() + "\n");
 
         playerStatusLabel = new Label();
         playerStatusLabel.setStyle(
@@ -271,9 +287,7 @@ public class MdPApplication extends Application {
         });
 
         saveBtn.setOnAction(e -> {
-            FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle("Salva la partita");
-            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("File JSON (*.json)", "*.json"));
+            FileChooser fileChooser = createFileChooser("Salva la partita");
 
             String playerName = battle.getPlayer().getName().replaceAll("\\s+", "_").toLowerCase();
             java.time.LocalDateTime now = java.time.LocalDateTime.now();
@@ -295,9 +309,7 @@ public class MdPApplication extends Application {
         });
 
         loadBtn.setOnAction(e -> {
-            FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle("Carica una partita");
-            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("File JSON (*.json)", "*.json"));
+            FileChooser fileChooser = createFileChooser("Carica una partita");
             File file = fileChooser.showOpenDialog(primaryStage);
             if (file != null) {
                 try {
@@ -533,9 +545,124 @@ public class MdPApplication extends Application {
         HBox.setHgrow(mainArea, Priority.ALWAYS);
 
         HBox root = new HBox(sidebar, mainArea);
+        Scene battleScene = new Scene(root, 900, 600);
+
+        VBox landingLayout = new VBox(20);
+        landingLayout.setPadding(new Insets(50));
+        landingLayout.setStyle("-fx-background-color: #121214; -fx-alignment: center;");
+
+        Label gameTitle = new Label("RPG ADVENTURE");
+        gameTitle.setStyle(
+                "-fx-text-fill: #00FF00; " +
+                "-fx-font-family: 'Segoe UI'; " +
+                "-fx-font-weight: bold; " +
+                "-fx-font-size: 36px; " +
+                "-fx-effect: dropshadow(three-pass-box, rgba(0, 255, 0, 0.4), 10, 0, 0, 0);"
+        );
+
+        Label gameSubtitle = new Label("Matricola 125556");
+        gameSubtitle.setStyle(
+                "-fx-text-fill: #8e8e9f; " +
+                "-fx-font-family: 'Segoe UI'; " +
+                "-fx-font-size: 16px; " +
+                "-fx-padding: 0 0 30 0;"
+        );
+
+        Button newGameBtn = new Button("NUOVA PARTITA");
+        Button loadGameBtn = new Button("CARICA PARTITA");
+
+        String landingBtnStyle = "-fx-background-color: #1e1e24; " +
+                "-fx-text-fill: #ffffff; " +
+                "-fx-font-family: 'Segoe UI'; " +
+                "-fx-font-size: 16px; " +
+                "-fx-font-weight: bold; " +
+                "-fx-padding: 15 40; " +
+                "-fx-background-radius: 8; " +
+                "-fx-border-color: #2e2e38; " +
+                "-fx-border-width: 1; " +
+                "-fx-cursor: hand; " +
+                "-fx-min-width: 250px;";
+
+        newGameBtn.setStyle(landingBtnStyle.replace("#1e1e24", "#00FF00").replace("#ffffff", "#000000"));
+        loadGameBtn.setStyle(landingBtnStyle);
+
+        newGameBtn.setOnMouseEntered(ev -> newGameBtn.setStyle(landingBtnStyle.replace("#1e1e24", "#00FF00").replace("#ffffff", "#000000") + "-fx-effect: dropshadow(three-pass-box, rgba(0,255,0,0.5), 10, 0, 0, 0);"));
+        newGameBtn.setOnMouseExited(ev -> newGameBtn.setStyle(landingBtnStyle.replace("#1e1e24", "#00FF00").replace("#ffffff", "#000000")));
+        loadGameBtn.setOnMouseEntered(ev -> loadGameBtn.setStyle(landingBtnStyle + "-fx-background-color: #2a2a32; -fx-border-color: #00FF00;"));
+        loadGameBtn.setOnMouseExited(ev -> loadGameBtn.setStyle(landingBtnStyle));
+
+        newGameBtn.setOnAction(ev -> {
+            java.util.List<String> classes = java.util.List.of("Guerriero", "Mago");
+            ChoiceDialog<String> classDialog = new ChoiceDialog<>("Guerriero", classes);
+            classDialog.setTitle("Selezione Classe");
+            classDialog.setHeaderText("Scegli la classe del tuo eroe");
+            classDialog.setContentText("Classe:");
+
+            Optional<String> result = classDialog.showAndWait();
+            if (result.isPresent()) {
+                String chosenClass = result.get();
+                Hero player;
+                if (chosenClass.equals("Mago")) {
+                    player = new Mage("Mago");
+                } else {
+                    player = new Warrior("Guerriero");
+                }
+                Zombie zombie = new Zombie();
+                battle = new BattleManager(player, zombie);
+
+                terminalArea.setText("=== COMBATTIMENTO ===\n" + player.getName() + " vs " + zombie.getName() + "\n");
+                updateStatus();
+
+                attackBtn.setDisable(false);
+                inventoryBtn.setDisable(false);
+                fleeBtn.setDisable(false);
+                newEncounterBtn.setVisible(false);
+                newEncounterBtn.setManaged(false);
+
+                primaryStage.setScene(battleScene);
+            }
+        });
+
+        loadGameBtn.setOnAction(ev -> {
+            FileChooser fileChooser = createFileChooser("Carica una partita");
+            File file = fileChooser.showOpenDialog(primaryStage);
+            if (file != null) {
+                try {
+                    GameState state = saveManager.loadGame(file);
+                    battle = new BattleManager(state.getPlayer(), state.getEnemy());
+                    battle.setBattleLog(state.getBattleLog());
+
+                    terminalArea.setText(battle.getLog() + "\n--- PARTITA CARICATA ---\n");
+                    updateStatus();
+
+                    attackBtn.setDisable(false);
+                    inventoryBtn.setDisable(false);
+                    fleeBtn.setDisable(false);
+                    newEncounterBtn.setVisible(false);
+                    newEncounterBtn.setManaged(false);
+
+                    checkBattleStatus(attackBtn, inventoryBtn, fleeBtn, newEncounterBtn);
+
+                    if (inventoryStage != null && inventoryStage.isShowing()) {
+                        populateInventory(attackBtn, inventoryBtn, fleeBtn, newEncounterBtn);
+                    }
+                    if (infoStage != null && infoStage.isShowing()) {
+                        populateCharacterInfo(attackBtn, inventoryBtn, fleeBtn);
+                    }
+
+                    primaryStage.setScene(battleScene);
+                } catch (Exception ex) {
+                    terminalArea.appendText("\nErrore durante il caricamento: " + ex.getMessage() + "\n");
+                    ex.printStackTrace();
+                }
+            }
+        });
+
+        landingLayout.getChildren().addAll(gameTitle, gameSubtitle, newGameBtn, loadGameBtn);
+        Scene landingScene = new Scene(landingLayout, 900, 600);
 
         primaryStage.setTitle("RPG - Matricola 125556");
-        primaryStage.setScene(new Scene(root, 900, 600));
+        primaryStage.setScene(landingScene);
         primaryStage.show();
     }
 
