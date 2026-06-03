@@ -7,10 +7,8 @@ import it.unicam.cs.mpgc.rpg125556.model.GameSaveManager;
 import it.unicam.cs.mpgc.rpg125556.model.GameState;
 import it.unicam.cs.mpgc.rpg125556.model.Hero;
 import it.unicam.cs.mpgc.rpg125556.model.Mage;
-import it.unicam.cs.mpgc.rpg125556.model.Skeleton;
 import it.unicam.cs.mpgc.rpg125556.model.Warrior;
 import it.unicam.cs.mpgc.rpg125556.model.Weapon;
-import it.unicam.cs.mpgc.rpg125556.model.Zombie;
 
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -32,7 +30,6 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.util.stream.Collectors;
-
 
 public class MdPApplication extends Application {
 
@@ -108,7 +105,15 @@ public class MdPApplication extends Application {
         if (text == null)
             return null;
         return text.replace("Health Potion", "Pozione di Salute")
-                .replace("Flesh", "Carne");
+                .replace("Flesh", "Carne")
+                .replace("Iron Sword", "Spada di Ferro")
+                .replace("Wooden Shield", "Scudo di Legno")
+                .replace("Ancient Sword", "Spada Antica")
+                .replace("Broken Shield", "Scudo Rotto")
+                .replace("Warrior", "Guerriero")
+                .replace("Mage", "Mago")
+                .replace("Skeleton", "Scheletro")
+                .replace("Zombie", "Zombie");
     }
 
     private void checkBattleStatus(Button attackBtn, Button inventoryBtn, Button fleeBtn, Button newEncounterBtn) {
