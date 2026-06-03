@@ -1,5 +1,7 @@
 package it.unicam.cs.mpgc.rpg125556.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.util.Optional;
@@ -19,6 +21,8 @@ public abstract class Hero extends Entity implements Playable {
     protected int maxExperience;
     protected Inventory inventory;
     protected int statPoints;
+    protected Weapon equippedWeapon;
+    protected Armor equippedArmor;
 
     protected Hero() {
         super();
@@ -131,5 +135,91 @@ public abstract class Hero extends Entity implements Playable {
             inventory.removeItem(p);
         });
         return potion;
+    }
+
+    public Weapon getEquippedWeapon() {
+        return equippedWeapon;
+    }
+
+    public void setEquippedWeapon(Weapon equippedWeapon) {
+        this.equippedWeapon = equippedWeapon;
+    }
+
+    public Armor getEquippedArmor() {
+        return equippedArmor;
+    }
+
+    public void setEquippedArmor(Armor equippedArmor) {
+        this.equippedArmor = equippedArmor;
+    }
+
+    @JsonIgnore
+    @Override
+    public int getAttack() {
+        int baseAttack = super.getAttack();
+        if (equippedWeapon != null) {
+            baseAttack += equippedWeapon.getAttackBonus();
+        }
+        return baseAttack;
+    }
+
+    @JsonProperty("attack")
+    public int getBaseAttack() {
+        return super.getAttack();
+    }
+
+    @JsonProperty("attack")
+    public void setBaseAttack(int baseAttack) {
+        this.setAttack(baseAttack);
+    }
+
+    @JsonIgnore
+    @Override
+    public int getDefense() {
+        int baseDefense = super.getDefense();
+        if (equippedArmor != null) {
+            baseDefense += equippedArmor.getDefenseBonus();
+        }
+        return baseDefense;
+    }
+
+    @JsonProperty("defense")
+    public int getBaseDefense() {
+        return super.getDefense();
+    }
+
+    @JsonProperty("defense")
+    public void setBaseDefense(int baseDefense) {
+        this.setDefense(baseDefense);
+    }
+
+    public void equipWeapon(Weapon w) {
+        if (this.equippedWeapon != null) {
+            this.inventory.addItem(this.equippedWeapon);
+        }
+        this.inventory.removeItem(w);
+        this.equippedWeapon = w;
+    }
+
+    public void unequipWeapon() {
+        if (this.equippedWeapon != null) {
+            this.inventory.addItem(this.equippedWeapon);
+            this.equippedWeapon = null;
+        }
+    }
+
+    public void equipArmor(Armor a) {
+        if (this.equippedArmor != null) {
+            this.inventory.addItem(this.equippedArmor);
+        }
+        this.inventory.removeItem(a);
+        this.equippedArmor = a;
+    }
+
+    public void unequipArmor() {
+        if (this.equippedArmor != null) {
+            this.inventory.addItem(this.equippedArmor);
+            this.equippedArmor = null;
+        }
     }
 }

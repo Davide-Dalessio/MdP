@@ -11,6 +11,8 @@ public class Zombie extends Enemy {
         LootTable table = new LootTable();
         table.addEntry(new HealthPotion("Flesh", 20), 80);
         table.addEntry(new HealthPotion("Health Potion", 50), 30);
+        table.addEntry(new Sword("Spada Antica", 8), 10);
+        table.addEntry(new Shield("Scudo Rotto", 5), 10);
         return table;
     }
 }

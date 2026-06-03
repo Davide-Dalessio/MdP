@@ -1,32 +1,38 @@
 package it.unicam.cs.mpgc.rpg125556;
 
+import it.unicam.cs.mpgc.rpg125556.model.Armor;
 import it.unicam.cs.mpgc.rpg125556.model.BattleManager;
-import it.unicam.cs.mpgc.rpg125556.model.Warrior;
-import it.unicam.cs.mpgc.rpg125556.model.Hero;
-import it.unicam.cs.mpgc.rpg125556.model.Mage;
 import it.unicam.cs.mpgc.rpg125556.model.Enemy;
-import it.unicam.cs.mpgc.rpg125556.model.Zombie;
-import it.unicam.cs.mpgc.rpg125556.model.Skeleton;
 import it.unicam.cs.mpgc.rpg125556.model.GameSaveManager;
 import it.unicam.cs.mpgc.rpg125556.model.GameState;
+import it.unicam.cs.mpgc.rpg125556.model.Hero;
+import it.unicam.cs.mpgc.rpg125556.model.Mage;
+import it.unicam.cs.mpgc.rpg125556.model.Skeleton;
+import it.unicam.cs.mpgc.rpg125556.model.Warrior;
+import it.unicam.cs.mpgc.rpg125556.model.Weapon;
+import it.unicam.cs.mpgc.rpg125556.model.Zombie;
+
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceDialog;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.File;
-import java.util.Optional;
+import java.util.stream.Collectors;
+
 
 public class MdPApplication extends Application {
 
@@ -49,6 +55,7 @@ public class MdPApplication extends Application {
                 + battle.getEnemy().getMaxHealth());
     }
 
+    // Configurazione salvataggi
     private FileChooser createFileChooser(String title) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle(title);
@@ -59,6 +66,49 @@ public class MdPApplication extends Application {
         }
         fileChooser.setInitialDirectory(saveDir);
         return fileChooser;
+    }
+
+    // Personalizzazione grafica ComboBox
+    private void styleComboBox(ComboBox<String> comboBox) {
+        String comboStyle = "-fx-background-color: transparent; -fx-text-fill: #cccccc; -fx-border-color: #3e3e4a; -fx-border-width: 1; -fx-border-radius: 3; -fx-background-radius: 3; -fx-font-family: 'Courier New'; -fx-font-size: 13px;";
+        comboBox.setStyle(comboStyle);
+        comboBox.setCellFactory(lv -> new ListCell<String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setStyle("-fx-background-color: #2a2a32;");
+                } else {
+                    setText(item);
+                    setTextFill(Color.web("#cccccc"));
+                    setStyle(
+                            "-fx-background-color: #2a2a32; -fx-text-fill: #cccccc; -fx-font-family: 'Courier New'; -fx-font-size: 13px; -fx-padding: 5 10;");
+                }
+            }
+        });
+        comboBox.setButtonCell(new ListCell<String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(item);
+                    setTextFill(Color.web("#cccccc"));
+                    setStyle(
+                            "-fx-background-color: transparent; -fx-text-fill: #cccccc; -fx-font-family: 'Courier New'; -fx-font-size: 13px;");
+                }
+            }
+        });
+    }
+
+    // Traduzione termini da inglese a italiano
+    private String translateText(String text) {
+        if (text == null)
+            return null;
+        return text.replace("Health Potion", "Pozione di Salute")
+                .replace("Flesh", "Carne");
     }
 
     private void checkBattleStatus(Button attackBtn, Button inventoryBtn, Button fleeBtn, Button newEncounterBtn) {
@@ -76,6 +126,7 @@ public class MdPApplication extends Application {
                 infoStage.close();
             }
 
+            // Schermata game over
             Stage gameOverStage = new Stage();
             gameOverStage.initModality(Modality.APPLICATION_MODAL);
             gameOverStage.initOwner(primaryStage);
@@ -130,21 +181,36 @@ public class MdPApplication extends Application {
 
         if (potions.isEmpty()) {
             Label emptyLabel = new Label("Nessun oggetto usabile disponibile.");
-            emptyLabel.setStyle("-fx-text-fill: #aaaaaa; -fx-font-family: 'Segoe UI'; -fx-font-size: 13px;");
+            emptyLabel.setStyle("-fx-text-fill: #aaaaaa; -fx-font-family: 'Courier New'; -fx-font-size: 13px;");
             inventoryItemsList.getChildren().add(emptyLabel);
         } else {
-            for (it.unicam.cs.mpgc.rpg125556.model.Potion potion : potions) {
+            // Raggruppamento pozioni per nome
+            java.util.Map<String, java.util.List<it.unicam.cs.mpgc.rpg125556.model.Potion>> groupedPotions = potions
+                    .stream().collect(Collectors.groupingBy(
+                            it.unicam.cs.mpgc.rpg125556.model.Potion::getName,
+                            java.util.LinkedHashMap::new,
+                            Collectors.toList()));
+
+            for (java.util.Map.Entry<String, java.util.List<it.unicam.cs.mpgc.rpg125556.model.Potion>> entry : groupedPotions
+                    .entrySet()) {
+                java.util.List<it.unicam.cs.mpgc.rpg125556.model.Potion> list = entry.getValue();
+                it.unicam.cs.mpgc.rpg125556.model.Potion firstPotion = list.get(0);
+                int count = list.size();
+
                 HBox row = new HBox(10);
                 row.setStyle("-fx-background-color: #1c1c1f; -fx-padding: 8 12; -fx-background-radius: 5;");
                 row.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
 
-                String desc = potion.getName();
-                if (potion instanceof it.unicam.cs.mpgc.rpg125556.model.HealthPotion hp) {
+                String desc = translateText(firstPotion.getName());
+                if (firstPotion instanceof it.unicam.cs.mpgc.rpg125556.model.HealthPotion hp) {
                     desc += " (Cura: " + hp.getHealAmount() + " HP)";
+                }
+                if (count > 1) {
+                    desc += " x" + count;
                 }
 
                 Label nameLabel = new Label(desc);
-                nameLabel.setStyle("-fx-text-fill: #ffffff; -fx-font-family: 'Segoe UI'; -fx-font-size: 13px;");
+                nameLabel.setStyle("-fx-text-fill: #ffffff; -fx-font-family: 'Courier New'; -fx-font-size: 13px;");
 
                 Region spacer = new Region();
                 HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -153,18 +219,18 @@ public class MdPApplication extends Application {
                 useBtn.setStyle(
                         "-fx-background-color: #00FF00; " +
                                 "-fx-text-fill: #000000; " +
-                                "-fx-font-family: 'Segoe UI'; " +
+                                "-fx-font-family: 'Courier New'; " +
                                 "-fx-font-weight: bold; " +
                                 "-fx-padding: 4 10; " +
                                 "-fx-background-radius: 3; " +
                                 "-fx-cursor: hand;");
 
                 useBtn.setOnAction(evt -> {
-                    potion.use(battle.getPlayer());
-                    battle.getPlayer().getInventory().removeItem(potion);
+                    firstPotion.use(battle.getPlayer());
+                    battle.getPlayer().getInventory().removeItem(firstPotion);
 
-                    String logMessage = battle.getPlayer().getName() + " usa " + potion.getName();
-                    if (potion instanceof it.unicam.cs.mpgc.rpg125556.model.HealthPotion hp) {
+                    String logMessage = battle.getPlayer().getName() + " usa " + translateText(firstPotion.getName());
+                    if (firstPotion instanceof it.unicam.cs.mpgc.rpg125556.model.HealthPotion hp) {
                         logMessage += " e recupera " + hp.getHealAmount() + " HP.";
                     } else {
                         logMessage += ".";
@@ -175,7 +241,7 @@ public class MdPApplication extends Application {
                         battle.enemyAttack();
                     }
 
-                    terminalArea.setText(battle.getLog());
+                    terminalArea.setText(translateText(battle.getLog()));
                     updateStatus();
 
                     checkBattleStatus(attackBtn, inventoryBtn, fleeBtn, newEncounterBtn);
@@ -203,7 +269,7 @@ public class MdPApplication extends Application {
 
         Label nameLabel = new Label("Nome: " + battle.getPlayer().getName());
         nameLabel.setStyle(
-                "-fx-text-fill: #ffffff; -fx-font-family: 'Segoe UI'; -fx-font-size: 14px; -fx-font-weight: bold;");
+                "-fx-text-fill: #ffffff; -fx-font-family: 'Courier New'; -fx-font-size: 14px; -fx-font-weight: bold;");
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -212,7 +278,7 @@ public class MdPApplication extends Application {
         renameBtn.setStyle(
                 "-fx-background-color: #3e3e4a; " +
                         "-fx-text-fill: #ffffff; " +
-                        "-fx-font-family: 'Segoe UI'; " +
+                        "-fx-font-family: 'Courier New'; " +
                         "-fx-font-size: 11px; " +
                         "-fx-padding: 3 8; " +
                         "-fx-background-radius: 3; " +
@@ -243,7 +309,7 @@ public class MdPApplication extends Application {
         String statStyle = "-fx-text-fill: #cccccc; -fx-font-family: 'Courier New'; -fx-font-size: 13px;";
         String statBtnStyle = "-fx-background-color: #00FF00; " +
                 "-fx-text-fill: #000000; " +
-                "-fx-font-family: 'Segoe UI'; " +
+                "-fx-font-family: 'Courier New'; " +
                 "-fx-font-weight: bold; " +
                 "-fx-font-size: 11px; " +
                 "-fx-padding: 2 6; " +
@@ -335,15 +401,105 @@ public class MdPApplication extends Application {
         if (battle.getPlayer().getStatPoints() > 0) {
             Label pointsLabel = new Label("Punti statistica disponibili: " + battle.getPlayer().getStatPoints());
             pointsLabel.setStyle(
-                    "-fx-text-fill: #00FF00; -fx-font-family: 'Segoe UI'; -fx-font-size: 13px; -fx-font-weight: bold; -fx-padding: 5 0;");
+                    "-fx-text-fill: #00FF00; -fx-font-family: 'Courier New'; -fx-font-size: 13px; -fx-font-weight: bold; -fx-padding: 5 0;");
             statsBox.getChildren().add(pointsLabel);
         }
 
         infoLayoutBox.getChildren().add(statsBox);
+
+        Hero player = battle.getPlayer();
+
+        VBox equipBox = new VBox(8);
+        equipBox.setStyle("-fx-background-color: #1c1c1f; -fx-padding: 12; -fx-background-radius: 5;");
+
+        Label equipTitle = new Label("EQUIPAGGIAMENTO");
+        equipTitle.setStyle(
+                "-fx-text-fill: #ffffff; -fx-font-family: 'Courier New'; -fx-font-weight: bold; -fx-font-size: 13px; -fx-padding: 0 0 5 0;");
+
+        Label weaponLabel = new Label("Arma:");
+        weaponLabel.setStyle("-fx-text-fill: #cccccc; -fx-font-family: 'Courier New'; -fx-font-size: 12px;");
+
+        ComboBox<String> weaponCombo = new ComboBox<>();
+        weaponCombo.getItems().add("[Nessuna Arma]");
+        java.util.List<Weapon> weapons = player.getInventory().getItemsByClass(Weapon.class);
+        for (Weapon w : weapons) {
+            weaponCombo.getItems().add(translateText(w.getName()) + " (+" + w.getAttackBonus() + " ATK)");
+        }
+
+        if (player.getEquippedWeapon() != null) {
+            Weapon ew = player.getEquippedWeapon();
+            weaponCombo.setValue(translateText(ew.getName()) + " (+" + ew.getAttackBonus() + " ATK)");
+        } else {
+            weaponCombo.setValue("[Nessuna Arma]");
+        }
+
+        weaponCombo.setOnAction(e -> {
+            String selected = weaponCombo.getValue();
+            if (selected == null)
+                return;
+            if (selected.equals("[Nessuna Arma]")) {
+                player.unequipWeapon();
+            } else {
+                for (Weapon w : weapons) {
+                    String label = translateText(w.getName()) + " (+" + w.getAttackBonus() + " ATK)";
+                    if (label.equals(selected)) {
+                        player.equipWeapon(w);
+                        break;
+                    }
+                }
+            }
+            updateStatus();
+            populateCharacterInfo(attackBtn, inventoryBtn, fleeBtn);
+        });
+
+        Label armorLabel = new Label("Armatura:");
+        armorLabel.setStyle("-fx-text-fill: #cccccc; -fx-font-family: 'Courier New'; -fx-font-size: 12px;");
+
+        ComboBox<String> armorCombo = new ComboBox<>();
+        armorCombo.getItems().add("[Nessuna Armatura]");
+        java.util.List<Armor> armors = player.getInventory().getItemsByClass(Armor.class);
+        for (Armor a : armors) {
+            armorCombo.getItems().add(translateText(a.getName()) + " (+" + a.getDefenseBonus() + " DEF)");
+        }
+
+        if (player.getEquippedArmor() != null) {
+            Armor ea = player.getEquippedArmor();
+            armorCombo.setValue(translateText(ea.getName()) + " (+" + ea.getDefenseBonus() + " DEF)");
+        } else {
+            armorCombo.setValue("[Nessuna Armatura]");
+        }
+
+        armorCombo.setOnAction(e -> {
+            String selected = armorCombo.getValue();
+            if (selected == null)
+                return;
+            if (selected.equals("[Nessuna Armatura]")) {
+                player.unequipArmor();
+            } else {
+                for (Armor a : armors) {
+                    String label = translateText(a.getName()) + " (+" + a.getDefenseBonus() + " DEF)";
+                    if (label.equals(selected)) {
+                        player.equipArmor(a);
+                        break;
+                    }
+                }
+            }
+            updateStatus();
+            populateCharacterInfo(attackBtn, inventoryBtn, fleeBtn);
+        });
+
+        styleComboBox(weaponCombo);
+        styleComboBox(armorCombo);
+        weaponCombo.setMaxWidth(Double.MAX_VALUE);
+        armorCombo.setMaxWidth(Double.MAX_VALUE);
+
+        equipBox.getChildren().addAll(equipTitle, weaponLabel, weaponCombo, armorLabel, armorCombo);
+        infoLayoutBox.getChildren().add(equipBox);
     }
 
     @Override
     public void start(Stage primaryStage) {
+        // Schermata principale
         this.primaryStage = primaryStage;
         Warrior dummyWarrior = new Warrior("Guerriero");
         Enemy dummyZombie = Enemy.getRandomEnemy();
@@ -373,12 +529,19 @@ public class MdPApplication extends Application {
 
         updateStatus();
 
+        // Bottone attacca
         Button attackBtn = new Button("Attacca");
+        // Bottone fuggi
         Button fleeBtn = new Button("Fuggi");
+        // Bottone inventario
         Button inventoryBtn = new Button("Inventario");
+        // Bottone salva partita
         Button saveBtn = new Button("Salva Partita");
+        // Bottone carica partita
         Button loadBtn = new Button("Carica Partita");
+        // Bottone info personaggio
         Button infoBtn = new Button("Info Personaggio");
+        // Bottone nuovo incontro
         Button newEncounterBtn = new Button("Nuovo Incontro");
 
         newEncounterBtn.setVisible(false);
@@ -391,7 +554,7 @@ public class MdPApplication extends Application {
             if (!battle.isBattleOver()) {
                 battle.enemyAttack();
             }
-            terminalArea.setText(battle.getLog());
+            terminalArea.setText(translateText(battle.getLog()));
             updateStatus();
             checkBattleStatus(attackBtn, inventoryBtn, fleeBtn, newEncounterBtn);
             if (infoStage != null && infoStage.isShowing()) {
@@ -401,7 +564,7 @@ public class MdPApplication extends Application {
 
         fleeBtn.setOnAction(e -> {
             boolean fled = battle.tryFlee();
-            terminalArea.setText(battle.getLog());
+            terminalArea.setText(translateText(battle.getLog()));
             updateStatus();
             if (fled) {
                 attackBtn.setDisable(true);
@@ -413,7 +576,7 @@ public class MdPApplication extends Application {
                 if (!battle.isBattleOver()) {
                     battle.enemyAttack();
                 }
-                terminalArea.setText(battle.getLog());
+                terminalArea.setText(translateText(battle.getLog()));
                 updateStatus();
                 checkBattleStatus(attackBtn, inventoryBtn, fleeBtn, newEncounterBtn);
             }
@@ -437,7 +600,7 @@ public class MdPApplication extends Application {
                 try {
                     GameState state = new GameState(battle.getPlayer(), battle.getEnemy(), battle.getBattleLogList());
                     saveManager.saveGame(file, state);
-                    terminalArea.appendText("\n--- PARTITA SALVATO CON SUCCESSO ---\n");
+                    terminalArea.appendText("\n--- PARTITA SALVATA CON SUCCESSO ---\n");
                 } catch (Exception ex) {
                     terminalArea.appendText("\nErrore durante il salvataggio: " + ex.getMessage() + "\n");
                     ex.printStackTrace();
@@ -455,7 +618,7 @@ public class MdPApplication extends Application {
                     battle = new BattleManager(state.getPlayer(), state.getEnemy());
                     battle.setBattleLog(state.getBattleLog());
 
-                    terminalArea.setText(battle.getLog() + "\n--- PARTITA CARICATA ---\n");
+                    terminalArea.setText(translateText(battle.getLog()) + "\n--- PARTITA CARICATA ---\n");
                     updateStatus();
 
                     attackBtn.setDisable(false);
@@ -486,6 +649,7 @@ public class MdPApplication extends Application {
                 return;
             }
 
+            // Inventario
             inventoryStage = new Stage();
             inventoryStage.setTitle("Inventario - Oggetti Usabili");
 
@@ -496,7 +660,7 @@ public class MdPApplication extends Application {
             Label titleLabel = new Label("OGGETTI USABILI");
             titleLabel.setStyle(
                     "-fx-text-fill: #ffffff; " +
-                            "-fx-font-family: 'Segoe UI'; " +
+                            "-fx-font-family: 'Courier New'; " +
                             "-fx-font-weight: bold; " +
                             "-fx-font-size: 16px;");
             layout.getChildren().add(titleLabel);
@@ -514,7 +678,7 @@ public class MdPApplication extends Application {
             closeBtn.setStyle(
                     "-fx-background-color: #3e3e4a; " +
                             "-fx-text-fill: #ffffff; " +
-                            "-fx-font-family: 'Segoe UI'; " +
+                            "-fx-font-family: 'Courier New'; " +
                             "-fx-font-size: 13px; " +
                             "-fx-padding: 6 12; " +
                             "-fx-background-radius: 4; " +
@@ -535,6 +699,7 @@ public class MdPApplication extends Application {
                 return;
             }
 
+            // Scheda personaggio
             infoStage = new Stage();
             infoStage.setTitle("Scheda Personaggio");
 
@@ -545,7 +710,7 @@ public class MdPApplication extends Application {
             Label titleLabel = new Label("SCHEDA PERSONAGGIO");
             titleLabel.setStyle(
                     "-fx-text-fill: #ffffff; " +
-                            "-fx-font-family: 'Segoe UI'; " +
+                            "-fx-font-family: 'Courier New'; " +
                             "-fx-font-weight: bold; " +
                             "-fx-font-size: 16px;");
             layout.getChildren().add(titleLabel);
@@ -558,7 +723,7 @@ public class MdPApplication extends Application {
             closeBtn.setStyle(
                     "-fx-background-color: #3e3e4a; " +
                             "-fx-text-fill: #ffffff; " +
-                            "-fx-font-family: 'Segoe UI'; " +
+                            "-fx-font-family: 'Courier New'; " +
                             "-fx-font-size: 13px; " +
                             "-fx-padding: 6 12; " +
                             "-fx-background-radius: 4; " +
@@ -567,7 +732,20 @@ public class MdPApplication extends Application {
             closeBtn.setOnAction(evt -> infoStage.close());
             layout.getChildren().add(closeBtn);
 
-            Scene scene = new Scene(layout, 320, 350);
+            Scene scene = new Scene(layout, 350, 480);
+            String css = ".combo-box { -fx-background-color: transparent; } " +
+                    ".combo-box > .arrow-button { -fx-background-color: transparent; } " +
+                    ".combo-box > .arrow-button > .arrow { -fx-background-color: #cccccc; } " +
+                    ".combo-box > .list-cell { -fx-text-fill: #cccccc !important; } " +
+                    ".combo-box > .list-cell:selected { -fx-text-fill: #cccccc !important; } " +
+                    ".combo-box-popup > .list-view { -fx-background-color: #2a2a32; -fx-border-color: #3e3e4a; -fx-border-width: 1px; } "
+                    +
+                    ".combo-box-popup > .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell { -fx-text-fill: #cccccc !important; -fx-background-color: #2a2a32; } "
+                    +
+                    ".combo-box-popup > .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:selected { -fx-text-fill: #cccccc !important; -fx-background-color: #3e3e4a; } "
+                    +
+                    ".combo-box-popup > .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:hover { -fx-text-fill: #cccccc !important; -fx-background-color: #3e3e4a; }";
+            scene.getStylesheets().add("data:text/css," + css.replace(" ", "%20"));
             infoStage.setScene(scene);
             infoStage.show();
         });
@@ -579,7 +757,7 @@ public class MdPApplication extends Application {
             battle.getBattleLogList().add("=== NUOVO COMBATTIMENTO ===\n" + battle.getPlayer().getName() + " vs "
                     + battle.getEnemy().getName() + "\n");
 
-            terminalArea.setText(battle.getLog());
+            terminalArea.setText(translateText(battle.getLog()));
             updateStatus();
 
             attackBtn.setDisable(false);
@@ -727,6 +905,7 @@ public class MdPApplication extends Application {
         loadGameBtn.setOnMouseExited(ev -> loadGameBtn.setStyle(landingBtnStyle));
 
         newGameBtn.setOnAction(ev -> {
+            // Selezione classe
             Stage classStage = new Stage();
             classStage.initModality(Modality.APPLICATION_MODAL);
             classStage.initOwner(primaryStage);
@@ -813,7 +992,7 @@ public class MdPApplication extends Application {
                     battle = new BattleManager(state.getPlayer(), state.getEnemy());
                     battle.setBattleLog(state.getBattleLog());
 
-                    terminalArea.setText(battle.getLog() + "\n--- PARTITA CARICATA ---\n");
+                    terminalArea.setText(translateText(battle.getLog()) + "\n--- PARTITA CARICATA ---\n");
                     updateStatus();
 
                     attackBtn.setDisable(false);
