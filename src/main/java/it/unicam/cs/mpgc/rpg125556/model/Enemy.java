@@ -10,7 +10,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
     property = "type"
 )
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = Zombie.class, name = "zombie")
+    @JsonSubTypes.Type(value = Zombie.class, name = "zombie"),
+    @JsonSubTypes.Type(value = Skeleton.class, name = "skeleton")
 })
 public abstract class Enemy extends Entity implements NonPlayable {
     private int experienceReward;
@@ -37,5 +38,13 @@ public abstract class Enemy extends Entity implements NonPlayable {
     @JsonIgnore
     public LootTable getLootTable() {
         return lootTable;
+    }
+
+    public static Enemy getRandomEnemy() {
+        if (new java.util.Random().nextBoolean()) {
+            return new Zombie();
+        } else {
+            return new Skeleton();
+        }
     }
 }

@@ -1,0 +1,61 @@
+{
+  "player" : {
+    "type" : "warrior",
+    "name" : "Guerriero",
+    "health" : 68,
+    "maxHealth" : 100,
+    "attack" : 65,
+    "defense" : 36,
+    "speed" : 20,
+    "experience" : 36,
+    "level" : 4,
+    "maxExperience" : 172,
+    "inventory" : {
+      "items" : [ {
+        "type" : "health_potion",
+        "name" : "Flesh",
+        "healAmount" : 20
+      }, {
+        "type" : "health_potion",
+        "name" : "Flesh",
+        "healAmount" : 20
+      }, {
+        "type" : "health_potion",
+        "name" : "Flesh",
+        "healAmount" : 20
+      }, {
+        "type" : "health_potion",
+        "name" : "Flesh",
+        "healAmount" : 20
+      }, {
+        "type" : "health_potion",
+        "name" : "Flesh",
+        "healAmount" : 20
+      }, {
+        "type" : "health_potion",
+        "name" : "Flesh",
+        "healAmount" : 20
+      }, {
+        "type" : "health_potion",
+        "name" : "Health Potion",
+        "healAmount" : 50
+      }, {
+        "type" : "health_potion",
+        "name" : "Flesh",
+        "healAmount" : 20
+      } ]
+    },
+    "statPoints" : 0
+  },
+  "enemy" : {
+    "type" : "zombie",
+    "name" : "Zombie",
+    "health" : 0,
+    "maxHealth" : 200,
+    "attack" : 30,
+    "defense" : 10,
+    "speed" : 10,
+    "experienceReward" : 50
+  },
+  "battleLog" : [ "=== NUOVO COMBATTIMENTO ===\nGuerriero vs Zombie\n", "Guerriero attacca per 40 danni", "Zombie attacca per 1 danni", "Guerriero attacca per 40 danni", "Zombie attacca per 1 danni", "Guerriero attacca per 40 danni", "Zombie attacca per 1 danni", "Guerriero attacca per 40 danni", "Zombie attacca per 1 danni", "Guerriero attacca per 40 danni", "Zombie è stato sconfitto.", "+50 XP guadagnati.", "Trovato: Flesh aggiunto all'inventario." ]
+}

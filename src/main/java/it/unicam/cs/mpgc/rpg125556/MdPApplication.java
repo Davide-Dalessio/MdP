@@ -4,7 +4,9 @@ import it.unicam.cs.mpgc.rpg125556.model.BattleManager;
 import it.unicam.cs.mpgc.rpg125556.model.Warrior;
 import it.unicam.cs.mpgc.rpg125556.model.Hero;
 import it.unicam.cs.mpgc.rpg125556.model.Mage;
+import it.unicam.cs.mpgc.rpg125556.model.Enemy;
 import it.unicam.cs.mpgc.rpg125556.model.Zombie;
+import it.unicam.cs.mpgc.rpg125556.model.Skeleton;
 import it.unicam.cs.mpgc.rpg125556.model.GameSaveManager;
 import it.unicam.cs.mpgc.rpg125556.model.GameState;
 import javafx.application.Application;
@@ -20,6 +22,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.File;
@@ -35,10 +38,15 @@ public class MdPApplication extends Application {
     private VBox inventoryItemsList;
     private Stage infoStage;
     private VBox infoLayoutBox;
+    private Stage primaryStage;
+    private Scene landingScene;
 
     private void updateStatus() {
-        playerStatusLabel.setText(battle.getPlayer().getName() + " (LV " + battle.getPlayer().getLevel() + ") HP: " + battle.getPlayer().getHealth() + "/" + battle.getPlayer().getMaxHealth() + " | EXP: " + battle.getPlayer().getExperience() + "/" + battle.getPlayer().getMaxExperience());
-        enemyStatusLabel.setText(battle.getEnemy().getName() + " HP: " + battle.getEnemy().getHealth() + "/" + battle.getEnemy().getMaxHealth());
+        playerStatusLabel.setText(battle.getPlayer().getName() + " (LV " + battle.getPlayer().getLevel() + ") HP: "
+                + battle.getPlayer().getHealth() + "/" + battle.getPlayer().getMaxHealth() + " | EXP: "
+                + battle.getPlayer().getExperience() + "/" + battle.getPlayer().getMaxExperience());
+        enemyStatusLabel.setText(battle.getEnemy().getName() + " HP: " + battle.getEnemy().getHealth() + "/"
+                + battle.getEnemy().getMaxHealth());
     }
 
     private FileChooser createFileChooser(String title) {
@@ -54,7 +62,55 @@ public class MdPApplication extends Application {
     }
 
     private void checkBattleStatus(Button attackBtn, Button inventoryBtn, Button fleeBtn, Button newEncounterBtn) {
-        if (battle.isBattleOver()) {
+        if (battle.getPlayer().isDead()) {
+            attackBtn.setDisable(true);
+            inventoryBtn.setDisable(true);
+            fleeBtn.setDisable(true);
+            newEncounterBtn.setVisible(false);
+            newEncounterBtn.setManaged(false);
+
+            if (inventoryStage != null) {
+                inventoryStage.close();
+            }
+            if (infoStage != null) {
+                infoStage.close();
+            }
+
+            Stage gameOverStage = new Stage();
+            gameOverStage.initModality(Modality.APPLICATION_MODAL);
+            gameOverStage.initOwner(primaryStage);
+            gameOverStage.setTitle("GAME OVER");
+
+            VBox layout = new VBox(20);
+            layout.setPadding(new Insets(25));
+            layout.setStyle(
+                    "-fx-background-color: #121214; -fx-alignment: center; -fx-border-color: #FF4500; -fx-border-width: 2; -fx-border-radius: 5; -fx-background-radius: 5;");
+
+            Label titleLabel = new Label("GAME OVER");
+            titleLabel.setStyle(
+                    "-fx-text-fill: #FF4500; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-font-size: 24px; -fx-effect: dropshadow(three-pass-box, rgba(255, 69, 0, 0.4), 10, 0, 0, 0);");
+
+            Label msgLabel = new Label("Il tuo eroe è stato sconfitto in battaglia!");
+            msgLabel.setStyle(
+                    "-fx-text-fill: #ffffff; -fx-font-family: 'Segoe UI'; -fx-font-size: 14px; -fx-text-alignment: center;");
+
+            Button menuBtn = new Button("TORNA AL MENU");
+            String btnStyle = "-fx-background-color: #FF4500; -fx-text-fill: #ffffff; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-font-size: 13px; -fx-padding: 10 20; -fx-background-radius: 5; -fx-cursor: hand;";
+            menuBtn.setStyle(btnStyle);
+            menuBtn.setOnMouseEntered(ev -> menuBtn
+                    .setStyle(btnStyle + "-fx-effect: dropshadow(three-pass-box, rgba(255, 69, 0, 0.5), 8, 0, 0, 0);"));
+            menuBtn.setOnMouseExited(ev -> menuBtn.setStyle(btnStyle));
+
+            menuBtn.setOnAction(ev -> {
+                primaryStage.setScene(landingScene);
+                gameOverStage.close();
+            });
+
+            layout.getChildren().addAll(titleLabel, msgLabel, menuBtn);
+            Scene scene = new Scene(layout, 350, 180);
+            gameOverStage.setScene(scene);
+            gameOverStage.showAndWait();
+        } else if (battle.getEnemy().isDead()) {
             attackBtn.setDisable(true);
             inventoryBtn.setDisable(true);
             fleeBtn.setDisable(true);
@@ -69,7 +125,8 @@ public class MdPApplication extends Application {
         }
         inventoryItemsList.getChildren().clear();
 
-        java.util.List<it.unicam.cs.mpgc.rpg125556.model.Potion> potions = battle.getPlayer().getInventory().getItemsByClass(it.unicam.cs.mpgc.rpg125556.model.Potion.class);
+        java.util.List<it.unicam.cs.mpgc.rpg125556.model.Potion> potions = battle.getPlayer().getInventory()
+                .getItemsByClass(it.unicam.cs.mpgc.rpg125556.model.Potion.class);
 
         if (potions.isEmpty()) {
             Label emptyLabel = new Label("Nessun oggetto usabile disponibile.");
@@ -95,13 +152,12 @@ public class MdPApplication extends Application {
                 Button useBtn = new Button("Usa");
                 useBtn.setStyle(
                         "-fx-background-color: #00FF00; " +
-                        "-fx-text-fill: #000000; " +
-                        "-fx-font-family: 'Segoe UI'; " +
-                        "-fx-font-weight: bold; " +
-                        "-fx-padding: 4 10; " +
-                        "-fx-background-radius: 3; " +
-                        "-fx-cursor: hand;"
-                );
+                                "-fx-text-fill: #000000; " +
+                                "-fx-font-family: 'Segoe UI'; " +
+                                "-fx-font-weight: bold; " +
+                                "-fx-padding: 4 10; " +
+                                "-fx-background-radius: 3; " +
+                                "-fx-cursor: hand;");
 
                 useBtn.setOnAction(evt -> {
                     potion.use(battle.getPlayer());
@@ -146,7 +202,8 @@ public class MdPApplication extends Application {
         nameRow.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
 
         Label nameLabel = new Label("Nome: " + battle.getPlayer().getName());
-        nameLabel.setStyle("-fx-text-fill: #ffffff; -fx-font-family: 'Segoe UI'; -fx-font-size: 14px; -fx-font-weight: bold;");
+        nameLabel.setStyle(
+                "-fx-text-fill: #ffffff; -fx-font-family: 'Segoe UI'; -fx-font-size: 14px; -fx-font-weight: bold;");
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -154,13 +211,12 @@ public class MdPApplication extends Application {
         Button renameBtn = new Button("Rinomina");
         renameBtn.setStyle(
                 "-fx-background-color: #3e3e4a; " +
-                "-fx-text-fill: #ffffff; " +
-                "-fx-font-family: 'Segoe UI'; " +
-                "-fx-font-size: 11px; " +
-                "-fx-padding: 3 8; " +
-                "-fx-background-radius: 3; " +
-                "-fx-cursor: hand;"
-        );
+                        "-fx-text-fill: #ffffff; " +
+                        "-fx-font-family: 'Segoe UI'; " +
+                        "-fx-font-size: 11px; " +
+                        "-fx-padding: 3 8; " +
+                        "-fx-background-radius: 3; " +
+                        "-fx-cursor: hand;");
 
         renameBtn.setOnAction(e -> {
             TextInputDialog dialog = new TextInputDialog(battle.getPlayer().getName());
@@ -171,7 +227,8 @@ public class MdPApplication extends Application {
                 if (!newName.trim().isEmpty()) {
                     battle.getPlayer().setName(newName.trim());
                     updateStatus();
-                    terminalArea.appendText("\n[Impostazioni] Nome del giocatore cambiato in: " + newName.trim() + "\n");
+                    terminalArea
+                            .appendText("\n[Impostazioni] Nome del giocatore cambiato in: " + newName.trim() + "\n");
                     populateCharacterInfo(attackBtn, inventoryBtn, fleeBtn);
                 }
             });
@@ -184,64 +241,143 @@ public class MdPApplication extends Application {
         statsBox.setStyle("-fx-background-color: #1c1c1f; -fx-padding: 12; -fx-background-radius: 5;");
 
         String statStyle = "-fx-text-fill: #cccccc; -fx-font-family: 'Courier New'; -fx-font-size: 13px;";
+        String statBtnStyle = "-fx-background-color: #00FF00; " +
+                "-fx-text-fill: #000000; " +
+                "-fx-font-family: 'Segoe UI'; " +
+                "-fx-font-weight: bold; " +
+                "-fx-font-size: 11px; " +
+                "-fx-padding: 2 6; " +
+                "-fx-background-radius: 3; " +
+                "-fx-cursor: hand;";
 
         Label lvLabel = new Label("Livello:   " + battle.getPlayer().getLevel());
         lvLabel.setStyle(statStyle);
 
-        Label hpLabel = new Label("Salute:    " + battle.getPlayer().getHealth() + " / " + battle.getPlayer().getMaxHealth());
-        hpLabel.setStyle(statStyle);
-
-        Label expLabel = new Label("Esperienza: " + battle.getPlayer().getExperience() + " / " + battle.getPlayer().getMaxExperience());
+        Label expLabel = new Label(
+                "Esperienza: " + battle.getPlayer().getExperience() + " / " + battle.getPlayer().getMaxExperience());
         expLabel.setStyle(statStyle);
 
+        HBox hpRow = new HBox(10);
+        hpRow.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        Label hpLabel = new Label(
+                "Salute:    " + battle.getPlayer().getHealth() + " / " + battle.getPlayer().getMaxHealth());
+        hpLabel.setStyle(statStyle);
+        hpRow.getChildren().add(hpLabel);
+        if (battle.getPlayer().getStatPoints() > 0) {
+            Region hpSpacer = new Region();
+            HBox.setHgrow(hpSpacer, Priority.ALWAYS);
+            Button addHpBtn = new Button("+");
+            addHpBtn.setStyle(statBtnStyle);
+            addHpBtn.setOnAction(e -> {
+                battle.getPlayer().allocatePointToMaxHealth();
+                updateStatus();
+                populateCharacterInfo(attackBtn, inventoryBtn, fleeBtn);
+            });
+            hpRow.getChildren().addAll(hpSpacer, addHpBtn);
+        }
+
+        HBox atkRow = new HBox(10);
+        atkRow.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
         Label atkLabel = new Label("Attacco:   " + battle.getPlayer().getAttack());
         atkLabel.setStyle(statStyle);
+        atkRow.getChildren().add(atkLabel);
+        if (battle.getPlayer().getStatPoints() > 0) {
+            Region atkSpacer = new Region();
+            HBox.setHgrow(atkSpacer, Priority.ALWAYS);
+            Button addAtkBtn = new Button("+");
+            addAtkBtn.setStyle(statBtnStyle);
+            addAtkBtn.setOnAction(e -> {
+                battle.getPlayer().allocatePointToAttack();
+                updateStatus();
+                populateCharacterInfo(attackBtn, inventoryBtn, fleeBtn);
+            });
+            atkRow.getChildren().addAll(atkSpacer, addAtkBtn);
+        }
 
+        HBox defRow = new HBox(10);
+        defRow.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
         Label defLabel = new Label("Difesa:    " + battle.getPlayer().getDefense());
         defLabel.setStyle(statStyle);
+        defRow.getChildren().add(defLabel);
+        if (battle.getPlayer().getStatPoints() > 0) {
+            Region defSpacer = new Region();
+            HBox.setHgrow(defSpacer, Priority.ALWAYS);
+            Button addDefBtn = new Button("+");
+            addDefBtn.setStyle(statBtnStyle);
+            addDefBtn.setOnAction(e -> {
+                battle.getPlayer().allocatePointToDefense();
+                updateStatus();
+                populateCharacterInfo(attackBtn, inventoryBtn, fleeBtn);
+            });
+            defRow.getChildren().addAll(defSpacer, addDefBtn);
+        }
 
+        HBox spdRow = new HBox(10);
+        spdRow.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
         Label spdLabel = new Label("Velocità:  " + battle.getPlayer().getSpeed());
         spdLabel.setStyle(statStyle);
+        spdRow.getChildren().add(spdLabel);
+        if (battle.getPlayer().getStatPoints() > 0) {
+            Region spdSpacer = new Region();
+            HBox.setHgrow(spdSpacer, Priority.ALWAYS);
+            Button addSpdBtn = new Button("+");
+            addSpdBtn.setStyle(statBtnStyle);
+            addSpdBtn.setOnAction(e -> {
+                battle.getPlayer().allocatePointToSpeed();
+                updateStatus();
+                populateCharacterInfo(attackBtn, inventoryBtn, fleeBtn);
+            });
+            spdRow.getChildren().addAll(spdSpacer, addSpdBtn);
+        }
 
-        statsBox.getChildren().addAll(lvLabel, hpLabel, expLabel, atkLabel, defLabel, spdLabel);
+        statsBox.getChildren().addAll(lvLabel, expLabel, hpRow, atkRow, defRow, spdRow);
+
+        if (battle.getPlayer().getStatPoints() > 0) {
+            Label pointsLabel = new Label("Punti statistica disponibili: " + battle.getPlayer().getStatPoints());
+            pointsLabel.setStyle(
+                    "-fx-text-fill: #00FF00; -fx-font-family: 'Segoe UI'; -fx-font-size: 13px; -fx-font-weight: bold; -fx-padding: 5 0;");
+            statsBox.getChildren().add(pointsLabel);
+        }
+
         infoLayoutBox.getChildren().add(statsBox);
     }
 
     @Override
     public void start(Stage primaryStage) {
-
+        this.primaryStage = primaryStage;
         Warrior dummyWarrior = new Warrior("Guerriero");
-        Zombie dummyZombie = new Zombie();
+        Enemy dummyZombie = Enemy.getRandomEnemy();
         battle = new BattleManager(dummyWarrior, dummyZombie);
 
         terminalArea = new TextArea();
         terminalArea.setEditable(false);
         terminalArea.setStyle(
                 "-fx-control-inner-background: white; " +
-                "-fx-text-fill: #000000ff; " +
-                "-fx-font-family: 'Courier New'; " +
-                "-fx-font-size: 14px;");
-        terminalArea.setText("=== COMBATTIMENTO ===\n" + dummyWarrior.getName() + " vs " + dummyZombie.getName() + "\n");
+                        "-fx-text-fill: #000000ff; " +
+                        "-fx-font-family: 'Courier New'; " +
+                        "-fx-font-size: 14px;");
+        terminalArea
+                .setText("=== COMBATTIMENTO ===\n" + dummyWarrior.getName() + " vs " + dummyZombie.getName() + "\n");
 
         playerStatusLabel = new Label();
         playerStatusLabel.setStyle(
                 "-fx-font-family: 'Courier New'; " +
-                "-fx-font-size: 14px; " +
-                "-fx-text-fill: #ffffff;");
+                        "-fx-font-size: 14px; " +
+                        "-fx-text-fill: #ffffff;");
 
         enemyStatusLabel = new Label();
         enemyStatusLabel.setStyle(
                 "-fx-font-family: 'Courier New'; " +
-                "-fx-font-size: 14px; " +
-                "-fx-text-fill: #ffffff;");
+                        "-fx-font-size: 14px; " +
+                        "-fx-text-fill: #ffffff;");
 
         updateStatus();
 
         Button attackBtn = new Button("Attacca");
         Button fleeBtn = new Button("Fuggi");
         Button inventoryBtn = new Button("Inventario");
-        Button saveBtn = new Button("Salva Gioco");
-        Button loadBtn = new Button("Carica Gioco");
+        Button saveBtn = new Button("Salva Partita");
+        Button loadBtn = new Button("Carica Partita");
         Button infoBtn = new Button("Info Personaggio");
         Button newEncounterBtn = new Button("Nuovo Incontro");
 
@@ -291,7 +427,8 @@ public class MdPApplication extends Application {
 
             String playerName = battle.getPlayer().getName().replaceAll("\\s+", "_").toLowerCase();
             java.time.LocalDateTime now = java.time.LocalDateTime.now();
-            java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
+            java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter
+                    .ofPattern("yyyy-MM-dd_HH-mm-ss");
             String defaultName = "save_" + playerName + "_" + now.format(formatter) + ".json";
             fileChooser.setInitialFileName(defaultName);
 
@@ -300,7 +437,7 @@ public class MdPApplication extends Application {
                 try {
                     GameState state = new GameState(battle.getPlayer(), battle.getEnemy(), battle.getBattleLogList());
                     saveManager.saveGame(file, state);
-                    terminalArea.appendText("\n--- GIOCO SALVATO CON SUCCESSO ---\n");
+                    terminalArea.appendText("\n--- PARTITA SALVATO CON SUCCESSO ---\n");
                 } catch (Exception ex) {
                     terminalArea.appendText("\nErrore durante il salvataggio: " + ex.getMessage() + "\n");
                     ex.printStackTrace();
@@ -359,10 +496,9 @@ public class MdPApplication extends Application {
             Label titleLabel = new Label("OGGETTI USABILI");
             titleLabel.setStyle(
                     "-fx-text-fill: #ffffff; " +
-                    "-fx-font-family: 'Segoe UI'; " +
-                    "-fx-font-weight: bold; " +
-                    "-fx-font-size: 16px;"
-            );
+                            "-fx-font-family: 'Segoe UI'; " +
+                            "-fx-font-weight: bold; " +
+                            "-fx-font-size: 16px;");
             layout.getChildren().add(titleLabel);
 
             inventoryItemsList = new VBox(10);
@@ -377,13 +513,12 @@ public class MdPApplication extends Application {
             Button closeBtn = new Button("Chiudi");
             closeBtn.setStyle(
                     "-fx-background-color: #3e3e4a; " +
-                    "-fx-text-fill: #ffffff; " +
-                    "-fx-font-family: 'Segoe UI'; " +
-                    "-fx-font-size: 13px; " +
-                    "-fx-padding: 6 12; " +
-                    "-fx-background-radius: 4; " +
-                    "-fx-cursor: hand;"
-            );
+                            "-fx-text-fill: #ffffff; " +
+                            "-fx-font-family: 'Segoe UI'; " +
+                            "-fx-font-size: 13px; " +
+                            "-fx-padding: 6 12; " +
+                            "-fx-background-radius: 4; " +
+                            "-fx-cursor: hand;");
             closeBtn.setMaxWidth(Double.MAX_VALUE);
             closeBtn.setOnAction(evt -> inventoryStage.close());
             layout.getChildren().add(closeBtn);
@@ -410,10 +545,9 @@ public class MdPApplication extends Application {
             Label titleLabel = new Label("SCHEDA PERSONAGGIO");
             titleLabel.setStyle(
                     "-fx-text-fill: #ffffff; " +
-                    "-fx-font-family: 'Segoe UI'; " +
-                    "-fx-font-weight: bold; " +
-                    "-fx-font-size: 16px;"
-            );
+                            "-fx-font-family: 'Segoe UI'; " +
+                            "-fx-font-weight: bold; " +
+                            "-fx-font-size: 16px;");
             layout.getChildren().add(titleLabel);
 
             infoLayoutBox = new VBox(15);
@@ -423,13 +557,12 @@ public class MdPApplication extends Application {
             Button closeBtn = new Button("Chiudi");
             closeBtn.setStyle(
                     "-fx-background-color: #3e3e4a; " +
-                    "-fx-text-fill: #ffffff; " +
-                    "-fx-font-family: 'Segoe UI'; " +
-                    "-fx-font-size: 13px; " +
-                    "-fx-padding: 6 12; " +
-                    "-fx-background-radius: 4; " +
-                    "-fx-cursor: hand;"
-            );
+                            "-fx-text-fill: #ffffff; " +
+                            "-fx-font-family: 'Segoe UI'; " +
+                            "-fx-font-size: 13px; " +
+                            "-fx-padding: 6 12; " +
+                            "-fx-background-radius: 4; " +
+                            "-fx-cursor: hand;");
             closeBtn.setMaxWidth(Double.MAX_VALUE);
             closeBtn.setOnAction(evt -> infoStage.close());
             layout.getChildren().add(closeBtn);
@@ -440,10 +573,11 @@ public class MdPApplication extends Application {
         });
 
         newEncounterBtn.setOnAction(e -> {
-            Zombie newZombie = new Zombie();
-            battle = new BattleManager(battle.getPlayer(), newZombie);
+            Enemy newEnemy = Enemy.getRandomEnemy();
+            battle = new BattleManager(battle.getPlayer(), newEnemy);
 
-            battle.getBattleLogList().add("=== NUOVO COMBATTIMENTO ===\n" + battle.getPlayer().getName() + " vs " + battle.getEnemy().getName() + "\n");
+            battle.getBattleLogList().add("=== NUOVO COMBATTIMENTO ===\n" + battle.getPlayer().getName() + " vs "
+                    + battle.getEnemy().getName() + "\n");
 
             terminalArea.setText(battle.getLog());
             updateStatus();
@@ -497,17 +631,17 @@ public class MdPApplication extends Application {
         sidebar.setPadding(new Insets(15));
         sidebar.setStyle(
                 "-fx-background-color: #1e1e24; " +
-                "-fx-border-color: #2e2e38; " +
-                "-fx-border-width: 0 1 0 0;");
+                        "-fx-border-color: #2e2e38; " +
+                        "-fx-border-width: 0 1 0 0;");
         sidebar.setPrefWidth(200);
 
         Label menuTitle = new Label("MENU RPG");
         menuTitle.setStyle(
                 "-fx-text-fill: #ffffff; " +
-                "-fx-font-family: 'Segoe UI'; " +
-                "-fx-font-weight: bold; " +
-                "-fx-font-size: 16px; " +
-                "-fx-padding: 0 0 10 0;");
+                        "-fx-font-family: 'Segoe UI'; " +
+                        "-fx-font-weight: bold; " +
+                        "-fx-font-size: 16px; " +
+                        "-fx-padding: 0 0 10 0;");
 
         sidebar.getChildren().addAll(menuTitle, saveBtn, loadBtn, infoBtn);
 
@@ -518,8 +652,8 @@ public class MdPApplication extends Application {
         HBox statusContainer = new HBox();
         statusContainer.setStyle(
                 "-fx-background-color: #1c1c1f; " +
-                "-fx-padding: 10; " +
-                "-fx-background-radius: 5;");
+                        "-fx-padding: 10; " +
+                        "-fx-background-radius: 5;");
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -530,14 +664,13 @@ public class MdPApplication extends Application {
 
         newEncounterBtn.setStyle(
                 "-fx-background-color: #00FF00; " +
-                "-fx-text-fill: #000000; " +
-                "-fx-font-family: 'Segoe UI'; " +
-                "-fx-font-size: 14px; " +
-                "-fx-font-weight: bold; " +
-                "-fx-padding: 10 20; " +
-                "-fx-background-radius: 5; " +
-                "-fx-cursor: hand;"
-        );
+                        "-fx-text-fill: #000000; " +
+                        "-fx-font-family: 'Segoe UI'; " +
+                        "-fx-font-size: 14px; " +
+                        "-fx-font-weight: bold; " +
+                        "-fx-padding: 10 20; " +
+                        "-fx-background-radius: 5; " +
+                        "-fx-cursor: hand;");
         newEncounterBtn.setMaxWidth(Double.MAX_VALUE);
 
         VBox.setVgrow(terminalArea, Priority.ALWAYS);
@@ -554,19 +687,17 @@ public class MdPApplication extends Application {
         Label gameTitle = new Label("RPG ADVENTURE");
         gameTitle.setStyle(
                 "-fx-text-fill: #00FF00; " +
-                "-fx-font-family: 'Segoe UI'; " +
-                "-fx-font-weight: bold; " +
-                "-fx-font-size: 36px; " +
-                "-fx-effect: dropshadow(three-pass-box, rgba(0, 255, 0, 0.4), 10, 0, 0, 0);"
-        );
+                        "-fx-font-family: 'Segoe UI'; " +
+                        "-fx-font-weight: bold; " +
+                        "-fx-font-size: 36px; " +
+                        "-fx-effect: dropshadow(three-pass-box, rgba(0, 255, 0, 0.4), 10, 0, 0, 0);");
 
         Label gameSubtitle = new Label("Matricola 125556");
         gameSubtitle.setStyle(
                 "-fx-text-fill: #8e8e9f; " +
-                "-fx-font-family: 'Segoe UI'; " +
-                "-fx-font-size: 16px; " +
-                "-fx-padding: 0 0 30 0;"
-        );
+                        "-fx-font-family: 'Segoe UI'; " +
+                        "-fx-font-size: 16px; " +
+                        "-fx-padding: 0 0 30 0;");
 
         Button newGameBtn = new Button("NUOVA PARTITA");
         Button loadGameBtn = new Button("CARICA PARTITA");
@@ -586,41 +717,91 @@ public class MdPApplication extends Application {
         newGameBtn.setStyle(landingBtnStyle.replace("#1e1e24", "#00FF00").replace("#ffffff", "#000000"));
         loadGameBtn.setStyle(landingBtnStyle);
 
-        newGameBtn.setOnMouseEntered(ev -> newGameBtn.setStyle(landingBtnStyle.replace("#1e1e24", "#00FF00").replace("#ffffff", "#000000") + "-fx-effect: dropshadow(three-pass-box, rgba(0,255,0,0.5), 10, 0, 0, 0);"));
-        newGameBtn.setOnMouseExited(ev -> newGameBtn.setStyle(landingBtnStyle.replace("#1e1e24", "#00FF00").replace("#ffffff", "#000000")));
-        loadGameBtn.setOnMouseEntered(ev -> loadGameBtn.setStyle(landingBtnStyle + "-fx-background-color: #2a2a32; -fx-border-color: #00FF00;"));
+        newGameBtn.setOnMouseEntered(
+                ev -> newGameBtn.setStyle(landingBtnStyle.replace("#1e1e24", "#00FF00").replace("#ffffff", "#000000")
+                        + "-fx-effect: dropshadow(three-pass-box, rgba(0,255,0,0.5), 10, 0, 0, 0);"));
+        newGameBtn.setOnMouseExited(
+                ev -> newGameBtn.setStyle(landingBtnStyle.replace("#1e1e24", "#00FF00").replace("#ffffff", "#000000")));
+        loadGameBtn.setOnMouseEntered(ev -> loadGameBtn
+                .setStyle(landingBtnStyle + "-fx-background-color: #2a2a32; -fx-border-color: #00FF00;"));
         loadGameBtn.setOnMouseExited(ev -> loadGameBtn.setStyle(landingBtnStyle));
 
         newGameBtn.setOnAction(ev -> {
-            java.util.List<String> classes = java.util.List.of("Guerriero", "Mago");
-            ChoiceDialog<String> classDialog = new ChoiceDialog<>("Guerriero", classes);
-            classDialog.setTitle("Selezione Classe");
-            classDialog.setHeaderText("Scegli la classe del tuo eroe");
-            classDialog.setContentText("Classe:");
+            Stage classStage = new Stage();
+            classStage.initModality(Modality.APPLICATION_MODAL);
+            classStage.initOwner(primaryStage);
+            classStage.setTitle("Selezione Classe");
 
-            Optional<String> result = classDialog.showAndWait();
-            if (result.isPresent()) {
-                String chosenClass = result.get();
-                Hero player;
-                if (chosenClass.equals("Mago")) {
-                    player = new Mage("Mago");
-                } else {
-                    player = new Warrior("Guerriero");
-                }
-                Zombie zombie = new Zombie();
-                battle = new BattleManager(player, zombie);
+            VBox layout = new VBox(20);
+            layout.setPadding(new Insets(20));
+            layout.setStyle(
+                    "-fx-background-color: #121214; -fx-alignment: center; -fx-border-color: #00FF00; -fx-border-width: 1; -fx-border-radius: 5; -fx-background-radius: 5;");
 
-                terminalArea.setText("=== COMBATTIMENTO ===\n" + player.getName() + " vs " + zombie.getName() + "\n");
+            Label titleLabel = new Label("SCEGLI LA CLASSE");
+            titleLabel.setStyle(
+                    "-fx-text-fill: #ffffff; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-font-size: 18px;");
+
+            String cardStyle = "-fx-background-color: #1c1c1f; -fx-padding: 15; -fx-background-radius: 8; -fx-alignment: center; -fx-cursor: hand; -fx-min-width: 260px; -fx-border-color: #2e2e38; -fx-border-width: 1;";
+
+            VBox warriorCard = new VBox(5);
+            warriorCard.setStyle(cardStyle);
+            Label wName = new Label("GUERRIERO");
+            wName.setStyle(
+                    "-fx-text-fill: #00FFFF; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-font-size: 14px;");
+            Label wStats = new Label("HP: 100 | ATK: 50 | DEF: 30 | SPD: 20");
+            wStats.setStyle("-fx-text-fill: #aaaaaa; -fx-font-family: 'Courier New'; -fx-font-size: 11px;");
+            warriorCard.getChildren().addAll(wName, wStats);
+
+            VBox mageCard = new VBox(5);
+            mageCard.setStyle(cardStyle);
+            Label mName = new Label("MAGO");
+            mName.setStyle(
+                    "-fx-text-fill: #FF00FF; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-font-size: 14px;");
+            Label mStats = new Label("HP: 80 | ATK: 80 | DEF: 15 | SPD: 25");
+            mStats.setStyle("-fx-text-fill: #aaaaaa; -fx-font-family: 'Courier New'; -fx-font-size: 11px;");
+            mageCard.getChildren().addAll(mName, mStats);
+
+            warriorCard.setOnMouseEntered(
+                    e -> warriorCard.setStyle(cardStyle + "-fx-border-color: #00FFFF; -fx-background-color: #25252a;"));
+            warriorCard.setOnMouseExited(e -> warriorCard.setStyle(cardStyle));
+            mageCard.setOnMouseEntered(
+                    e -> mageCard.setStyle(cardStyle + "-fx-border-color: #FF00FF; -fx-background-color: #25252a;"));
+            mageCard.setOnMouseExited(e -> mageCard.setStyle(cardStyle));
+
+            warriorCard.setOnMouseClicked(e -> {
+                Hero player = new Warrior("Guerriero");
+                Enemy enemy = Enemy.getRandomEnemy();
+                battle = new BattleManager(player, enemy);
+                terminalArea.setText("=== COMBATTIMENTO ===\n" + player.getName() + " vs " + enemy.getName() + "\n");
                 updateStatus();
-
                 attackBtn.setDisable(false);
                 inventoryBtn.setDisable(false);
                 fleeBtn.setDisable(false);
                 newEncounterBtn.setVisible(false);
                 newEncounterBtn.setManaged(false);
-
                 primaryStage.setScene(battleScene);
-            }
+                classStage.close();
+            });
+
+            mageCard.setOnMouseClicked(e -> {
+                Hero player = new Mage("Mago");
+                Enemy enemy = Enemy.getRandomEnemy();
+                battle = new BattleManager(player, enemy);
+                terminalArea.setText("=== COMBATTIMENTO ===\n" + player.getName() + " vs " + enemy.getName() + "\n");
+                updateStatus();
+                attackBtn.setDisable(false);
+                inventoryBtn.setDisable(false);
+                fleeBtn.setDisable(false);
+                newEncounterBtn.setVisible(false);
+                newEncounterBtn.setManaged(false);
+                primaryStage.setScene(battleScene);
+                classStage.close();
+            });
+
+            layout.getChildren().addAll(titleLabel, warriorCard, mageCard);
+            Scene scene = new Scene(layout, 320, 320);
+            classStage.setScene(scene);
+            classStage.showAndWait();
         });
 
         loadGameBtn.setOnAction(ev -> {
@@ -659,10 +840,10 @@ public class MdPApplication extends Application {
         });
 
         landingLayout.getChildren().addAll(gameTitle, gameSubtitle, newGameBtn, loadGameBtn);
-        Scene landingScene = new Scene(landingLayout, 900, 600);
+        this.landingScene = new Scene(landingLayout, 900, 600);
 
         primaryStage.setTitle("RPG - Matricola 125556");
-        primaryStage.setScene(landingScene);
+        primaryStage.setScene(this.landingScene);
         primaryStage.show();
     }
 

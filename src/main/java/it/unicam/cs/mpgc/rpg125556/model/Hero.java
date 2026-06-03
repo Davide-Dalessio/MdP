@@ -18,6 +18,7 @@ public abstract class Hero extends Entity implements Playable {
     protected int level;
     protected int maxExperience;
     protected Inventory inventory;
+    protected int statPoints;
 
     protected Hero() {
         super();
@@ -30,6 +31,7 @@ public abstract class Hero extends Entity implements Playable {
         this.level = 1;
         this.maxExperience = 100;
         this.inventory = new Inventory();
+        this.statPoints = 0;
     }
 
     @Override
@@ -80,6 +82,44 @@ public abstract class Hero extends Entity implements Playable {
     public void levelUp() {
         this.level++;
         this.maxExperience = (int) (maxExperience * 1.2);
+        this.statPoints += 5;
+    }
+
+    public int getStatPoints() {
+        return statPoints;
+    }
+
+    public void setStatPoints(int statPoints) {
+        this.statPoints = statPoints;
+    }
+
+    public void allocatePointToMaxHealth() {
+        if (statPoints > 0) {
+            this.maxHealth += 10;
+            this.health += 10;
+            this.statPoints--;
+        }
+    }
+
+    public void allocatePointToAttack() {
+        if (statPoints > 0) {
+            this.attack += 5;
+            this.statPoints--;
+        }
+    }
+
+    public void allocatePointToDefense() {
+        if (statPoints > 0) {
+            this.defense += 3;
+            this.statPoints--;
+        }
+    }
+
+    public void allocatePointToSpeed() {
+        if (statPoints > 0) {
+            this.speed += 2;
+            this.statPoints--;
+        }
     }
 
     public Optional<Potion> usePotion() {
