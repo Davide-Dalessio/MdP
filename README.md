@@ -2,7 +2,7 @@
 Questo progetto consiste in un gioco di ruolo (RPG) a turni sviluppato in Java e JavaFX. Il gioco si concentra sul sistema di combattimento e implementa un sistemi di:
 - level up e allocazione punti statistica
 - inventario
-- quipaggiamento
+- equipaggiamento
 - salvataggi persistenti in formato JSON
 il tutto con un'interfaccia utente grafica.
 
