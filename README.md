@@ -29,6 +29,6 @@ esecuzione:
 ```
 # Uso di strumenti AI
 Utilizzato google gemini con ruolo di:
-Supervisione: Per controllare che il codice scritto fosse chiaro, corretto e rispettasse la specifica del progetto.
-Brainstorming: Per trovare l'idea iniziale sulla quale basare il progetto.
-Bug fixing: Per risolvere problemi di compilazione o comportamenti indesiderati.
+- Supervisione: Per controllare che il codice scritto fosse chiaro, corretto e rispettasse la specifica del progetto.
+- Brainstorming: Per trovare l'idea iniziale sulla quale basare il progetto.
+- Bug fixing: Per risolvere problemi di compilazione o comportamenti indesiderati.
