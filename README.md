@@ -1,4 +1,4 @@
-#RPG Adventure (Matricola 125556)
+# RPG Adventure (Matricola 125556)
 Questo progetto consiste in un gioco di ruolo (RPG) a turni sviluppato in Java e JavaFX. Il gioco si concentra sul sistema di combattimento e implementa un sistemi di:
 -level up e allocazione punti statistica
 -inventario
@@ -6,12 +6,12 @@ Questo progetto consiste in un gioco di ruolo (RPG) a turni sviluppato in Java e
 -salvataggi persistenti in formato JSON
 il tutto con un'interfaccia utente grafica.
 
-##Come eseguire il progetto
-###Prerequisiti:
+## Come eseguire il progetto
+### Prerequisiti:
 - Java 25 (LTS)
 - Gradle
 
-###Istruzioni:
+### Istruzioni:
 
 cloning:
 ```bash
