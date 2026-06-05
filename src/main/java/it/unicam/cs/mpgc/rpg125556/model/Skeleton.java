@@ -10,8 +10,8 @@ public class Skeleton extends Enemy {
     protected LootTable buildLootTable() {
         LootTable table = new LootTable();
         table.addEntry(new HealthPotion("Health Potion", 50), 40);
-        table.addEntry(new Sword("Spada di Ferro", 15), 15);
-        table.addEntry(new Shield("Scudo di Legno", 10), 15);
+        table.addEntry(new Sword("Iron Sword", 15), 15);
+        table.addEntry(new Shield("Wooden Shield", 10), 15);
         return table;
     }
 }

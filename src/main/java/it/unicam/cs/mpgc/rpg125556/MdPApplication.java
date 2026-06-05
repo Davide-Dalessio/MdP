@@ -534,19 +534,18 @@ public class MdPApplication extends Application {
 
         updateStatus();
 
-        // Bottone attacca
         Button attackBtn = new Button("Attacca");
-        // Bottone fuggi
+
         Button fleeBtn = new Button("Fuggi");
-        // Bottone inventario
+
         Button inventoryBtn = new Button("Inventario");
-        // Bottone salva partita
+
         Button saveBtn = new Button("Salva Partita");
-        // Bottone carica partita
+
         Button loadBtn = new Button("Carica Partita");
-        // Bottone info personaggio
+
         Button infoBtn = new Button("Info Personaggio");
-        // Bottone nuovo incontro
+
         Button newEncounterBtn = new Button("Nuovo Incontro");
 
         newEncounterBtn.setVisible(false);
