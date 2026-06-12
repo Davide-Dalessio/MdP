@@ -17,7 +17,6 @@ il tutto con un'interfaccia utente grafica.
   git clone https://github.com/Davide-Dalessio/MdP
   cd MdP
   ```
-  #### Linux/macOS:
   Build:
   ```bash
   ./gradlew build
@@ -26,17 +25,6 @@ il tutto con un'interfaccia utente grafica.
   Esecuzione:
   ```bash
   ./gradlew run
-  ```
-
-  #### Windows:
-  Build:
-  ```bash
-  gradlew build
-  ```
-  
-  Esecuzione:
-  ```bash
-  gradlew run
   ```
   
 # Uso di strumenti AI
