@@ -12,7 +12,7 @@ il tutto con un'interfaccia utente grafica.
 - Gradle
 
 ### Istruzioni:
-  cloning:
+  Cloning:
   ```bash
   git clone https://github.com/Davide-Dalessio/MdP
   cd MdP
