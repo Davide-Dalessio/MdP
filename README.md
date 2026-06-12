@@ -12,21 +12,33 @@ il tutto con un'interfaccia utente grafica.
 - Gradle
 
 ### Istruzioni:
+  cloning:
+  ```bash
+  git clone https://github.com/Davide-Dalessio/MdP
+  cd MdP
+  ```
+  #### Linux/macOS:
+  Build:
+  ```bash
+  ./gradlew build
+  ```
+  
+  Esecuzione:
+  ```bash
+  ./gradlew run
+  ```
 
-cloning:
-```bash
-git clone https://github.com/Davide-Dalessio/MdP
-cd MdP
-```
-build:
-```bash
-./gradlew build
-```
-
-esecuzione:
-```bash
-./gradlew run
-```
+  #### Windows:
+  Build:
+  ```bash
+  gradlew build
+  ```
+  
+  Esecuzione:
+  ```bash
+  gradlew run
+  ```
+  
 # Uso di strumenti AI
 Utilizzato google gemini con ruolo di:
 - Supervisione: Per controllare che il codice scritto fosse chiaro, corretto e rispettasse la specifica del progetto.
